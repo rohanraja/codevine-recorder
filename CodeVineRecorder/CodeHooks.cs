@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 
 namespace CodeRecordHelpers
 {
@@ -19,6 +20,11 @@ namespace CodeRecordHelpers
 			ticks++;
 			return ticks.ToString();
 		}
+
+        private static string getThreadID()
+        {
+            return Thread.CurrentThread.ManagedThreadId.ToString() ; 
+        }
 
 		public static CodeHooks Instance()
 		{
@@ -57,6 +63,7 @@ namespace CodeRecordHelpers
             payload.Add(mrid.ToString());
             payload.Add(relativeFilePath);
             payload.Add(methodName);
+			payload.Add(getThreadID());
 
             hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
 
@@ -74,6 +81,7 @@ namespace CodeRecordHelpers
 			payload.Add(lineNo.ToString());
 			payload.Add(timeStamp);
 			payload.Add(methodRunningState);
+			payload.Add(getThreadID());
 
 
 			hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);

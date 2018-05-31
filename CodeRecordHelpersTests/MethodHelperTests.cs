@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using CodeRecordHelpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -42,10 +43,13 @@ namespace CodeRecordHelpersTests
 
 			mock.Verify(x => x.DispatchMessage(It.IsAny<RedisMessage>()), Times.Once());
 
+            string tid = Thread.CurrentThread.ManagedThreadId.ToString();
+
 			Assert.IsTrue(msg.GetKey().Contains("CODE_RUN_EVENTS"));
 			Assert.IsTrue(msg.GetMessage().Contains("95"));
 			Assert.IsTrue(msg.GetMessage().Contains("testDate"));
 			Assert.IsTrue(msg.GetMessage().Contains("LINE_EXEC"));
+			Assert.IsTrue(msg.GetMessage().Contains(tid));
 
         }
 

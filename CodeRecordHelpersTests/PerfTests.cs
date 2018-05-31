@@ -29,7 +29,7 @@ namespace CodeRecordHelpersTests
             //MessageDispatcher.WaitToFinish();
             //Assert.IsTrue(redisHelper.ListCount(KEY) == times);
 
-            //redisHelper.DelKey(KEY);
+            redisHelper.DelKey(KEY);
             redisHelper.Dispose();
         }
 
