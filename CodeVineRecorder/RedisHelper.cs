@@ -21,7 +21,7 @@ namespace CodeRecordHelpers
 		public void AddToQueue(string key, string jsonVal)
 		{
 			var db = redis.GetDatabase();
-			db.ListRightPush(key, jsonVal);
+			db.ListRightPushAsync(key, jsonVal);
 		}
 
 		public void Connect()
@@ -29,6 +29,16 @@ namespace CodeRecordHelpers
 
 			redis = ConnectionMultiplexer.Connect("algomuse.com:6379");
     	}
+
+        public long ListCount(string key)
+        {
+            return redis.GetDatabase().ListLength(key);
+        }
+
+        public void DelKey(string key)
+        {
+            redis.GetDatabase().KeyDelete(key);
+        }
 
         public void Dispose()
 		{

@@ -12,11 +12,10 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
     <PackageReference Include="Moq" Version="4.8.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\CodeRecordHelpers\CodeRecordHelpers.csproj" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Remove="RedisDispatcherQueue.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CodeVineRecorder\CodeVineRecorder.csproj" />
   </ItemGroup>
 </Project>

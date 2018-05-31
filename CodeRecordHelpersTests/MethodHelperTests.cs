@@ -8,16 +8,23 @@ namespace CodeRecordHelpersTests
     [TestClass]
     public class MethodHelperTests
     {
-		CodeHooks methodHelpers;
+		CodeHooks codeHooks;
+        private RedisHelper redisHelper;
+        string KEY = "resque:queue:CODE_RUN_EVENTS";
 
-		[TestInitialize]
+        [TestInitialize]
         public void Init()
 		{
+            codeHooks = CodeHooks.Instance();
+            redisHelper = RedisHelper.GetConnectedRedisHelper();
+            redisHelper.DelKey(KEY);
 		}
 
 		[TestCleanup]
         public void Clean()
         {
+            redisHelper.DelKey(KEY);
+            redisHelper.Dispose();
         }
 
         [TestMethod]
@@ -27,11 +34,11 @@ namespace CodeRecordHelpersTests
 
 			RedisMessage msg = new RedisMessage("","");
 
+            codeHooks = new CodeHooks(mock.Object);
+
 			mock.Setup(x => x.DispatchMessage(It.IsAny<RedisMessage>())).Callback( (RedisMessage pmsg) => msg = pmsg ) ;
 
-			methodHelpers = new CodeHooks( mock.Object );
-
-			methodHelpers.LogLineRun(System.Guid.NewGuid(), 95, "testDate");
+			codeHooks.LogLineRun(System.Guid.NewGuid(), 95, "testDate");
 
 			mock.Verify(x => x.DispatchMessage(It.IsAny<RedisMessage>()), Times.Once());
 
@@ -42,32 +49,19 @@ namespace CodeRecordHelpersTests
 
         }
 
-		//[TestMethod]
+		[TestMethod]
         public void TestLoggingLine_REDIS()
 		{
-			methodHelpers = CodeHooks.Instance();
-			//methodHelpers.AddSourceFile("newClass.cs", "line1\nline2\nline3\nline4\nline5");
-			//methodHelpers.AddSourceFile("classB.cs", "This\nis\na\nreally\ninteresting\ncode");
-			var mrid = methodHelpers.OnMethodEnter("Program.cs", "MethodA");
-			methodHelpers.LogLineRun(mrid, 8, "09-04-1993");
-            mrid = methodHelpers.OnMethodEnter( "ClassA.cs", "MethodB");
-            methodHelpers.LogLineRun(mrid, 13, "09-04-1994");
-            methodHelpers.LogLineRun(mrid, 15, "09-04-1995");
+            int times = 20;
+            for(int i=0; i< times; i++)
+            {
+                codeHooks.AddSourceFile("classBDummy.cs", "This\nis\na\nreally\ninteresting\ncode");
+            }
 
-			//mrid = Guid.NewGuid();
-   //         methodHelpers.OnMethodEnter(mrid, "ClassB.cs", "MethodC");
-			//methodHelpers.LogLineRun(mrid, 10, "09-04-1994");
-   //         methodHelpers.LogLineRun(mrid, 12, "09-04-1995");
+            MessageDispatcher.WaitToFinish();
 
-			//mrid = Guid.NewGuid();
-   //         methodHelpers.OnMethodEnter(mrid, "ClassA.cs", "MethodB");
-   //         methodHelpers.LogLineRun(mrid, 15, "09-04-1996");
+            Assert.IsTrue(redisHelper.ListCount(KEY) == times);
 
-			//mrid = Guid.NewGuid();
-   //         methodHelpers.OnMethodEnter(mrid, "Program.cs", "MethodB");
-   //         methodHelpers.LogLineRun(mrid, 8, "09-04-1997");
-			//methodHelpers.LogLineRun(mrid, 9, "09-04-1998");
-			//methodHelpers.LogLineRun(mrid, 10, "09-04-1999");
 		}
     }
 }
