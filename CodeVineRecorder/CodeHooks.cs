@@ -81,7 +81,6 @@ namespace CodeRecordHelpers
 			payload.Add(lineNo.ToString());
 			payload.Add(timeStamp);
 			payload.Add(methodRunningState);
-			payload.Add(getThreadID());
 
 
 			hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
