@@ -86,6 +86,29 @@ namespace CodeRecordHelpers
 			hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
 
         }
+        
+		public void SendFieldUpdate(int clrId, string varName, string varType, string className, object newVal, string timeStamp)
+        {
+
+            //var payload = new LineExecPayloadHolder(mrid, lineNo, timeStamp);
+            var eventType = "SEND_FIELD_UPDATE";
+
+			string newValStr = "null";
+			if (newVal != null)
+				newValStr = newVal.ToString();
+			
+            var payload = new List<string>() { };
+			payload.Add(clrId.ToString());
+			payload.Add(varName);
+			payload.Add(varType);
+			payload.Add(className);
+			payload.Add(newValStr);
+            payload.Add(timeStamp);
+
+
+            hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
+
+        }
 
 	}
 }
