@@ -12,6 +12,7 @@ namespace CodeRecordHelpers
 
 		public Guid CodeRunID = Guid.NewGuid();
 		private HookHelpers hookHelpers;
+     private JsonHelper jsonHelper;
 
 		static int ticks = 0;
         
@@ -37,6 +38,7 @@ namespace CodeRecordHelpers
 		public CodeHooks(IMessageDispatcher dispatcher)
         {
 			hookHelpers = new HookHelpers(dispatcher);
+      jsonHelper = new JsonHelper();
         }
 
 
@@ -94,8 +96,31 @@ namespace CodeRecordHelpers
             var eventType = "SEND_FIELD_UPDATE";
 
 			string newValStr = "null";
+      varType = "NULL";
+
 			if (newVal != null)
-				newValStr = newVal.ToString();
+          {
+			if(IsValueType(newVal))
+            {
+                newValStr = newVal.ToString();
+    			varType = "VALUE";
+            }
+            else
+            {
+              if(IsCodeVineClass(newVal))
+              {
+                newValStr = newVal.GetHashCode().ToString();
+                varType = "INTERNAL_CLASS";
+              }
+              else
+              {
+                newValStr = jsonHelper.ToJSON(newVal);
+                varType = "EXTERNAL_CLASS";
+              }
+
+            }
+          }
+
 			
             var payload = new List<string>() { };
 			payload.Add(clrId.ToString());
@@ -109,6 +134,27 @@ namespace CodeRecordHelpers
             hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
 
         }
+
+        public bool IsCodeVineClass(object target)
+		{
+			var property = target.GetType().GetProperty("CodeVine_ClrInstanceId");
+			return property != null;
+		}
+
+        public bool IsValueType(object target)
+		{
+			var type = target.GetType();
+
+			bool outP = type.IsValueType;
+			if (outP)
+				return true;
+
+			if (type.Name.ToLower() == "string" && type.Namespace.ToLower() == "system")
+				return true;
+
+			return false;
+		}
+
 
 	}
 }
