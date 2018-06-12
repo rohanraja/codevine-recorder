@@ -91,49 +91,61 @@ namespace CodeRecordHelpers
         
 		public void SendFieldUpdate(int clrId, string varName, string varType, string className, object newVal, string timeStamp)
         {
+			SendVarUpdate(clrId.ToString(), varName, false, className, newVal, timeStamp);
+        }
 
-            //var payload = new LineExecPayloadHolder(mrid, lineNo, timeStamp);
-            var eventType = "SEND_FIELD_UPDATE";
+		public void LocalVarUpdate(Guid mrid, string varName, string className, object newVal, string timeStamp)
+        {
+			SendVarUpdate(mrid.ToString(), varName, true, className, newVal, timeStamp);
+        }
+
+		public void SendVarUpdate(string contId, string varName, bool isLocal, string className, object newVal, string timeStamp)
+		{
+
+			//var payload = new LineExecPayloadHolder(mrid, lineNo, timeStamp);
+			var eventType = "SEND_VAR_UPDATE";
 
 			string newValStr = "null";
-      varType = "NULL";
+			string varType = "NULL";
 
 			if (newVal != null)
-          {
-			if(IsValueType(newVal))
-            {
-                newValStr = newVal.ToString();
-    			varType = "VALUE";
-            }
-            else
-            {
-              if(IsCodeVineClass(newVal))
-              {
-                newValStr = newVal.GetHashCode().ToString();
-                varType = "INTERNAL_CLASS";
-              }
-              else
-              {
-                newValStr = jsonHelper.ToJSON(newVal);
-                varType = "EXTERNAL_CLASS";
-              }
+			{
+				if (IsValueType(newVal))
+				{
+					newValStr = newVal.ToString();
+					varType = "VALUE";
+				}
+				else
+				{
+					if (IsCodeVineClass(newVal))
+					{
+						newValStr = newVal.GetHashCode().ToString();
+						varType = "INTERNAL_CLASS";
+					}
+					else
+					{
+						newValStr = jsonHelper.ToJSON(newVal);
+						varType = "EXTERNAL_CLASS";
+					}
 
-            }
-          }
+				}
+			}
 
-			
-            var payload = new List<string>() { };
-			payload.Add(clrId.ToString());
+
+			var payload = new List<string>() { };
+			payload.Add(contId);
 			payload.Add(varName);
 			payload.Add(varType);
 			payload.Add(className);
 			payload.Add(newValStr);
-            payload.Add(timeStamp);
+			payload.Add(timeStamp);
+			payload.Add(isLocal.ToString());
 
 
-            hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
+			hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
+		}
 
-        }
+
 
         public bool IsCodeVineClass(object target)
 		{
