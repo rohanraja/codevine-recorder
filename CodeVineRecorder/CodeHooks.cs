@@ -55,7 +55,7 @@ namespace CodeRecordHelpers
 			hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
         }
 
-		public Guid OnMethodEnter(string relativeFilePath, string methodName)
+		public Guid OnMethodEnter(string relativeFilePath, string methodName, int clrid)
         {
             var eventType = "METHOD_ENTER";
 
@@ -66,6 +66,7 @@ namespace CodeRecordHelpers
             payload.Add(relativeFilePath);
             payload.Add(methodName);
 			payload.Add(getThreadID());
+			payload.Add(clrid.ToString());
 
             hookHelpers.DispatchCodeRunEvent(CodeRunID.ToString(), payload, eventType);
 
